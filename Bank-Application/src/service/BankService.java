@@ -1,4 +1,5 @@
 package service;
+import exceptions.AccountClosedException;
 import exceptions.AccountNotFoundException;
 import model.Account;
 import model.Customer;
@@ -45,8 +46,19 @@ public class BankService {
             if(account == null){
                 throw new AccountNotFoundException("Account not found in bank records.");
             }
+            if(account.getStatus().equalsIgnoreCase("closed")) {
+                throw new AccountClosedException("Account already closed. Unable to perform operation.");
+            } else {
+                if(accountDAO.closeBankAccount(accNumber)){
+                    System.out.println("Bank account number " + accNumber + " closed successfully.");
+                } else {
+                    System.out.println("Failed to close bank account. Please try again.");
+                }
+            }
 
-        } catch(AccountNotFoundException | SQLException e) {
+
+
+        } catch(AccountNotFoundException | AccountClosedException | SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }

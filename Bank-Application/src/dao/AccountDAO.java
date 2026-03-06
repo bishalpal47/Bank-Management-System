@@ -51,4 +51,13 @@ public class AccountDAO {
             }
         }
     }
+
+    public boolean closeBankAccount(long accNumber) throws SQLException{
+        String sql = "UPDATE bankaccounts SET Status = 'Closed' WHERE AccountNumber = ?";
+        try(Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);) {
+            ps.setLong(1, accNumber);
+            return ps.executeUpdate() == 1;
+        }
+    }
 }
