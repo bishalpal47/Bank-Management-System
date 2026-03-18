@@ -60,4 +60,15 @@ public class AccountDAO {
             return ps.executeUpdate() == 1;
         }
     }
+
+    public boolean updateAccount(Account account) throws SQLException{
+        String sql = "UPDATE bankaccounts SET Balance = ? WHERE AccountNumber = ?";
+        try(Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);) {
+            ps.setDouble(1, account.getBankBalance());
+            ps.setLong(2, account.getAccNumber());
+            return ps.executeUpdate() == 1;
+        }
+
+    }
 }

@@ -51,7 +51,13 @@ public class Main {
                     long accNumber = sc.nextLong();
                     service.closeAccount(accNumber);
                     break;
-                case 3:break;
+                case 3:
+                    System.out.print("Enter your account number : ");
+                    accNumber = sc.nextLong();
+                    System.out.print("Enter amount : ");
+                    double amount = sc.nextDouble();
+                    service.withdraw(accNumber, amount);
+                    break;
                 case 4:break;
                 case 5:break;
                 case 6:break;

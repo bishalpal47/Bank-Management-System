@@ -1,12 +1,20 @@
 package service;
 import exceptions.AccountClosedException;
 import exceptions.AccountNotFoundException;
+import exceptions.InsufficientBalanceException;
+import exceptions.InvalidAmountException;
 import model.Account;
 import model.Customer;
 import dao.*;
+import model.Transaction;
+import receipts.ReceiptGenerator;
+
+import java.io.IOException;
 import java.lang.Math;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 
 public class BankService {
     private static CustomerDAO customerDAO = new CustomerDAO();
@@ -56,11 +64,59 @@ public class BankService {
                 }
             }
 
-
-
         } catch(AccountNotFoundException | AccountClosedException | SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
+    }
+
+    public void withdraw(long accNumber, double amount) {
+        try {
+            if(amount < 0){
+                throw new InvalidAmountException("Unable to initiate transaction due to negative value of amount.");
+            }
+            else if(amount == 0){
+                throw new InvalidAmountException("Unable to initiate transaction due to amount = 0.");
+            } else {
+                Account acc = accountDAO.getAccount(accNumber);
+                if(acc == null) {
+                    throw new AccountNotFoundException("Invalid bank account number entered.");
+                }
+                if(acc.getStatus().equalsIgnoreCase("closed")) {
+                    throw new AccountClosedException("Account already closed.");
+                }
+
+                // SAVINGS ACCOUNT : min_balance = 0
+                // CURRENT ACCOUNT : min_balance = -1000
+                double min_balance = acc.getAccountType().equalsIgnoreCase("savings") ? 0 : -1000;
+                if(acc.getBankBalance() - amount < min_balance) {
+                    throw new InsufficientBalanceException("Entered withdrawal amount exceeds the minimum balance rules of bank account.");
+                }
+
+                // first, set new balance in the account object.
+                acc.setBankBalance(acc.getBankBalance() - amount);
+
+                // then, update the bankAccount table in DBMS.
+                if(accountDAO.updateAccount(acc)) {
+                    // if the update is successful, then, create a new record in the transaction table  AND  generate a receipt.
+                    Transaction t = new Transaction(acc.getAccNumber(), "Withdrawal", amount, LocalDateTime.now(), 0, "Withdrawal from account.");
+                    transactionDAO.addTransaction(t);
+                    // generate a receipt.
+                    ReceiptGenerator.generateReceipt(t);
+                    System.out.println("Withdrawal successful!");
+                    System.out.println("Amount : ₹" + t.getAmount());
+                    System.out.println("Transaction receipt generated.");
+
+                } else {
+                    // if the update is unsuccessful, then, print a message - FAILED TO WITHDRAW AMOUNT. PLEASE TRY AGAIN.
+                    System.out.println("Error: Failed to update balance. Withdrawal operation unsuccessful.");
+                }
+            }
+
+        } catch(InvalidAmountException | SQLException | AccountNotFoundException | AccountClosedException | InsufficientBalanceException |
+                IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
     }
 
 }
