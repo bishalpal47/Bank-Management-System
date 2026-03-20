@@ -29,4 +29,29 @@ public class TransactionDAO {
             }
         }
     }
+
+
+    public boolean addTransferTransaction(Transaction t, Connection conn) throws SQLException{
+        String sql = "INSERT INTO transactions(AccountNumber, TransactionType, Amount, TransactionDate, RelatedAccountNumber, Description) VALUES (?,?,?,?,?,?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);) {
+
+            ps.setLong(1, t.getAccountNumber());
+            ps.setString(2, t.getTransactionType());
+            ps.setDouble(3, t.getAmount());
+            ps.setTimestamp(4, Timestamp.valueOf(t.getTimestamp()));
+            if (t.getRelatedAccountNumber() == 0) {
+                ps.setNull(5, Types.BIGINT);
+            } else {
+                ps.setLong(5, t.getRelatedAccountNumber());
+            }
+            ps.setString(6, t.getDescription());
+            int updateResult = ps.executeUpdate();
+            try(ResultSet resultSet = ps.getGeneratedKeys();) {
+                if(resultSet.next()) {
+                    t.setTransactionID(resultSet.getInt(1));
+                }
+            }
+            return updateResult == 1;
+        }
+    }
 }

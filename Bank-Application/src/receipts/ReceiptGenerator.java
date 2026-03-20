@@ -16,7 +16,18 @@ public class ReceiptGenerator {
         writer.write("================  GG BANK ================\n");
         writer.write("Transaction Type : " + t.getTransactionType() + "\n");
         writer.write("Transaction ID   : " + t.getTransactionID() + "\n");
-        writer.write("Account Number   : " + t.getAccountNumber() + "\n");
+
+        if(t.getTransactionType().equalsIgnoreCase("transfer")){
+            if(t.getDescription().contains("Withdrawal")){
+                writer.write("Your account number   : " + t.getAccountNumber() + "\n");
+                writer.write("Receivers account number : " + t.getRelatedAccountNumber() + "\n");
+            } else {
+                writer.write("Your account number   : " + t.getAccountNumber() + "\n");
+                writer.write("Senders account number : " + t.getRelatedAccountNumber() + "\n");
+            }
+        } else {
+            writer.write("Account Number   : " + t.getAccountNumber() + "\n");
+        }
         writer.write("Amount           : ₹ " + t.getAmount() + "\n");
         writer.write("Date             : " + t.getTimestamp() + "\n");
         writer.write("Description      : " + t.getDescription() + "\n");

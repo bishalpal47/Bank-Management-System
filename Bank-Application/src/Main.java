@@ -59,7 +59,15 @@ public class Main {
                     service.withdraw(accNumber, amount);
                     break;
                 case 4:break;
-                case 5:break;
+                case 5:
+                    System.out.print("Enter your account number : ");
+                    accNumber = sc.nextLong();
+                    System.out.print("Enter receiver's account number : ");
+                    long recAccountNumber = sc.nextLong();
+                    System.out.print("Enter amount : ");
+                    amount = sc.nextDouble();
+                    service.transfer(accNumber, recAccountNumber, amount);
+                    break;
                 case 6:break;
                 case 7:break;
                 case 8:break;

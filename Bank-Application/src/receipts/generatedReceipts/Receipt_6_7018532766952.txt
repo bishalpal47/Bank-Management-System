@@ -1,0 +1,9 @@
+================  GG BANK ================
+Transaction Type : Transfer
+Transaction ID   : 6
+Senders account number   : 7018532766952
+Receivers account number : 8755987110481
+Amount           : ₹ 2031.0
+Date             : 2026-03-20T20:08:50.348442500
+Description      : Deposit to account via transfer
+==========================================
