@@ -68,7 +68,11 @@ public class Main {
                     amount = sc.nextDouble();
                     service.transfer(accNumber, recAccountNumber, amount);
                     break;
-                case 6:break;
+                case 6:
+                    System.out.print("Enter your account number : ");
+                    accNumber = sc.nextLong();
+                    service.getTransactionHistory(accNumber);
+                    break;
                 case 7:break;
                 case 8:break;
                 case 9:

@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 
 public class BankService {
@@ -121,6 +122,8 @@ public class BankService {
 
     }
 
+
+
     public void transfer(long accNumber, long recAccNumber, double amount) {
         try(Connection conn = DBUtil.getConnection()) {
             // get senders account
@@ -196,5 +199,34 @@ public class BankService {
         }
 
     }
+
+    public void getTransactionHistory(long accNumber){
+        try {
+            Account acc = accountDAO.getAccount(accNumber);
+            if(acc == null) {
+                throw new AccountNotFoundException("Invalid bank account number entered.");
+            }
+            if(acc.getStatus().equalsIgnoreCase("closed")) {
+                throw new AccountClosedException("Account already closed.");
+            }
+            ArrayList<Transaction> allTransactions = transactionDAO.getAllTransactions(accNumber);
+            if(allTransactions.isEmpty()){
+                System.out.println("No transactions performed via this account.");
+            } else {
+                for(Transaction t : allTransactions) {
+                    System.out.println("Transaction date    : " + t.getTimestamp());
+                    System.out.println("Transaction type    : " + t.getTransactionType());
+                    System.out.println("Amount              : " + t.getAmount());
+                    System.out.println("Description         : " + t.getDescription());
+                    System.out.println("=============================================");
+                }
+            }
+        } catch(SQLException | AccountNotFoundException | AccountClosedException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+    }
+
+
 
 }

@@ -4,6 +4,7 @@ import model.Transaction;
 import util.DBUtil;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class TransactionDAO {
     public void addTransaction(Transaction t) throws SQLException {
@@ -30,7 +31,6 @@ public class TransactionDAO {
         }
     }
 
-
     public boolean addTransferTransaction(Transaction t, Connection conn) throws SQLException{
         String sql = "INSERT INTO transactions(AccountNumber, TransactionType, Amount, TransactionDate, RelatedAccountNumber, Description) VALUES (?,?,?,?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);) {
@@ -53,5 +53,30 @@ public class TransactionDAO {
             }
             return updateResult == 1;
         }
+    }
+
+    public ArrayList<Transaction> getAllTransactions(long accNumber) throws SQLException{
+        String sql = "SELECT * FROM transactions WHERE AccountNumber = ? ORDER BY TransactionDate DESC";
+        ArrayList<Transaction> allTransactions = new ArrayList<>();
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);) {
+            ps.setLong(1, accNumber);
+            try(ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Transaction t = new Transaction(
+                            rs.getLong("AccountNumber"),
+                            rs.getString("TransactionType"),
+                            rs.getDouble("Amount"),
+                            rs.getTimestamp("TransactionDate").toLocalDateTime(),
+                            rs.getLong("RelatedAccountNumber"),
+                            rs.getString("Description")
+                    );
+                    t.setTransactionID(rs.getInt("TransactionID"));
+                    allTransactions.add(t);
+                }
+            }
+        }
+        return allTransactions;
     }
 }
